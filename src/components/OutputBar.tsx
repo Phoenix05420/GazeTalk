@@ -13,6 +13,7 @@ interface Props {
   text: string;
   isLoading: boolean;
   isFaceTrackingActive: boolean;
+  isFaceDetected: boolean;
   isConnected: boolean;
   theme: ThemeColors;
 }
@@ -49,7 +50,7 @@ function SoundWave({ theme }: { theme: ThemeColors }) {
 }
 
 // ─── OutputBar Main ──────────────────────────────────────────
-export default function OutputBar({ text, isLoading, isFaceTrackingActive, isConnected, theme }: Props) {
+export default function OutputBar({ text, isLoading, isFaceTrackingActive, isFaceDetected, isConnected, theme }: Props) {
   const cursorBlink = useRef(new Animated.Value(1)).current;
   const statusPulse = useRef(new Animated.Value(0.4)).current;
   const glowPulse = useRef(new Animated.Value(0)).current;
@@ -116,10 +117,17 @@ export default function OutputBar({ text, isLoading, isFaceTrackingActive, isCon
             {isConnected ? 'AI Connected' : 'Offline Mode'}
           </Text>
           {isFaceTrackingActive && (
-            <View style={[s.trackingBadge, { backgroundColor: theme.primaryDim, borderColor: theme.borderActive }]}>
-              <View style={[s.trackingDot, { backgroundColor: theme.primary }]} />
-              <Text style={[s.trackingText, { color: theme.primary }]}>Tracking</Text>
-            </View>
+            isFaceDetected ? (
+              <View style={[s.trackingBadge, { backgroundColor: theme.primaryDim, borderColor: theme.borderActive }]}>
+                <View style={[s.trackingDot, { backgroundColor: theme.primary }]} />
+                <Text style={[s.trackingText, { color: theme.primary }]}>Tracking</Text>
+              </View>
+            ) : (
+              <View style={[s.trackingBadge, { backgroundColor: 'rgba(255,59,48,0.2)', borderColor: 'rgba(255,59,48,0.5)' }]}>
+                <Ionicons name="warning" size={10} color="#ff3b30" style={{ marginRight: 4 }} />
+                <Text style={[s.trackingText, { color: '#ff3b30' }]}>No Face Detected</Text>
+              </View>
+            )
           )}
         </View>
 

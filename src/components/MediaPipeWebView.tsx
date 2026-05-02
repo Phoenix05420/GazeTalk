@@ -8,7 +8,7 @@ import { StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
 interface Props {
-  onGazeData: (x: number, y: number, blink: boolean) => void;
+  onGazeData: (x: number, y: number, blink: boolean, faceDetected: boolean) => void;
   onReady?: () => void;
   smoothing?: number;
   sensitivity?: number;
@@ -149,8 +149,8 @@ function getHtmlContent(smoothing: number, sensitivity: number): string {
         onFrame: async () => {
           await faceMesh.send({image: videoElement});
         },
-        width: 480,
-        height: 640,
+        width: 240,
+        height: 320,
         facingMode: "user"
       });
       
@@ -174,7 +174,9 @@ export default function MediaPipeWebView({ onGazeData, onReady, smoothing = 0.35
         if (onReady) onReady();
       }
       if (data.x !== undefined && data.y !== undefined) {
-        onGazeData(data.x, data.y, !!data.blink);
+        onGazeData(data.x, data.y, !!data.blink, true);
+      } else if (data.faceDetected === false) {
+        onGazeData(0, 0, false, false);
       }
     } catch (e) {
       // Ignore parse errors

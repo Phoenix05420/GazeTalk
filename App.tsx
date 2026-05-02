@@ -34,6 +34,7 @@ export default function App() {
   const [outputText, setOutputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isFaceTrackingActive, setIsFaceTrackingActive] = useState(false);
+  const [isFaceDetected, setIsFaceDetected] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -60,6 +61,13 @@ export default function App() {
       requestPermission();
     }
   }, [permission, requestPermission]);
+
+  // Auditory/Haptic feedback on key hover
+  useEffect(() => {
+    if (hoveredKey && settings.hapticFeedback) {
+      Haptics.selectionAsync().catch(() => {});
+    }
+  }, [hoveredKey, settings.hapticFeedback]);
 
   useEffect(() => {
     if (outputText.length > 0) {
@@ -140,12 +148,15 @@ export default function App() {
     }
   };
 
-  const onGazeData = useCallback((x: number, y: number, blink: boolean) => {
+  const onGazeData = useCallback((x: number, y: number, blink: boolean, faceDetected: boolean) => {
     if (!faceTrackingStarted.current) {
       faceTrackingStarted.current = true;
       setIsFaceTrackingActive(true);
     }
-    handleGazeData(x, y, blink, handleKeyPress);
+    setIsFaceDetected(faceDetected);
+    if (faceDetected) {
+      handleGazeData(x, y, blink, handleKeyPress);
+    }
   }, [handleGazeData, handleKeyPress]);
 
   if (!fontsLoaded) return <SplashLoader />;
@@ -169,6 +180,7 @@ export default function App() {
             text={outputText}
             isLoading={isLoading}
             isFaceTrackingActive={isFaceTrackingActive}
+            isFaceDetected={isFaceDetected}
             isConnected={isConnected}
             theme={currentTheme}
           />

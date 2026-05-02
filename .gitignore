@@ -1,0 +1,61 @@
+# ─── Dependencies ──────────────────────────────────────
+node_modules/
+
+# ─── Expo / React Native ──────────────────────────────
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# ─── Generated native folders (Expo prebuild) ─────────
+/ios/
+/android/
+
+# ─── Native build artifacts ───────────────────────────
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# ─── Metro bundler ────────────────────────────────────
+.metro-health-check*
+
+# ─── Debug logs ───────────────────────────────────────
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# ─── OS files ─────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Env & secrets ────────────────────────────────────
+.env*.local
+*.pem
+
+# ─── TypeScript ───────────────────────────────────────
+*.tsbuildinfo
+
+# ─── Python backend ──────────────────────────────────
+backend/venv/
+backend/__pycache__/
+**/__pycache__/
+*.pyc
+
+# ─── ML model weights (too large for git) ────────────
+*.pt
+*.h5
+*.onnx
+*.tflite
+ml/saved_model/
+ml/tfjs_model/
+
+# ─── Flutter (fully removed — block re-addition) ─────
+flutter/
+mobile_flutter/
+flutter_windows.zip
+*.dart
+.dart_tool/

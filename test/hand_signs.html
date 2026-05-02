@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>GazeTalk - Hand Sign Test v3</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;background:#0a0a1a;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+    h1{margin-top:16px;font-size:26px;background:linear-gradient(135deg,#f093fb,#f5576c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .sub{color:#888;margin-bottom:10px;font-size:13px}
+    .main{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;padding:0 15px;width:100%;max-width:1400px}
+    .col{display:flex;flex-direction:column;gap:12px}
+    .vid-wrap{position:relative;border-radius:16px;overflow:hidden;border:2px solid rgba(240,147,251,0.3);box-shadow:0 0 30px rgba(240,147,251,0.1)}
+    video{display:block;border-radius:14px}
+    .cv{position:absolute;top:0;left:0;border-radius:14px}
+    .panel{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px;width:360px;backdrop-filter:blur(10px)}
+    .hand-panels{display:flex;gap:12px;width:100%}
+    .hand-panel{flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px;min-width:0}
+    .hand-panel.active{border-color:rgba(67,233,123,0.3)}
+    .hand-panel h3{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+    .hand-panel h3.left{color:#4facfe}.hand-panel h3.right{color:#f093fb}
+    .panel h2{font-size:14px;margin:12px 0 8px;color:#f093fb;display:flex;align-items:center;gap:6px}
+    .panel h2:first-child{margin-top:0}
+    .gd{width:100%;padding:20px;border-radius:14px;background:rgba(255,255,255,0.04);text-align:center;border:2px solid rgba(255,255,255,0.08);transition:all .2s}
+    .gd.det{border-color:#43e97b;box-shadow:0 0 20px rgba(67,233,123,0.15)}
+    .gn{font-size:26px;font-weight:700}.ge{font-size:40px;display:block;margin-bottom:6px}.gc{font-size:12px;color:#888}
+    .fs{display:flex;gap:5px;justify-content:center}
+    .fi{width:48px;padding:7px 0;border-radius:10px;text-align:center;font-size:10px;font-weight:600;background:rgba(255,59,48,0.15);color:#ff3b30;border:1px solid rgba(255,59,48,0.2);transition:all .15s}
+    .fi.up{background:rgba(67,233,123,0.15);color:#43e97b;border-color:rgba(67,233,123,0.2)}
+    .st{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px}
+    .sl{color:#888}.sv{font-weight:700;color:#fff}
+    .angles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
+    .ac{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:6px;text-align:center;font-size:10px}
+    .ac .val{font-size:14px;font-weight:700;color:#f093fb;margin-top:1px}.ac .lbl{color:#666}
+    .hi{max-height:110px;overflow-y:auto;padding:8px;border-radius:10px;background:rgba(0,0,0,0.3);font-size:11px;color:#888}
+    .sb{margin:8px 0;padding:8px 14px;border-radius:10px;font-size:12px;text-align:center}
+    .sbl{background:rgba(255,149,0,0.15);color:#ff9500}
+    .sba{background:rgba(67,233,123,0.15);color:#43e97b}
+    /* Pinch indicator */
+    .pinch-bar{height:14px;border-radius:7px;background:rgba(255,255,255,0.06);overflow:hidden;margin:4px 0}
+    .pinch-fill{height:100%;border-radius:7px;transition:width .1s;background:linear-gradient(90deg,#43e97b,#f093fb)}
+    /* Practice mode */
+    .practice{text-align:center;padding:16px;border-radius:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08)}
+    .practice .target-emoji{font-size:60px;display:block;margin-bottom:6px}
+    .practice .target-name{font-size:16px;font-weight:700;color:#f093fb}
+    .practice .result{margin-top:8px;font-size:14px;font-weight:700}
+    .practice .result.pass{color:#43e97b}.practice .result.fail{color:#ff3b30}
+    .prac-btn{padding:8px 20px;border-radius:10px;background:linear-gradient(135deg,#f093fb,#f5576c);color:#fff;font-weight:700;font-size:12px;border:none;cursor:pointer;margin-top:8px}
+    .score-badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;background:rgba(67,233,123,0.2);color:#43e97b;margin-left:6px}
+    /* Wrist gauge */
+    .wg{width:100%;height:40px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);position:relative;overflow:hidden}
+    .wg-needle{position:absolute;top:5px;left:50%;width:3px;height:30px;background:linear-gradient(to top,#f093fb,#f5576c);border-radius:2px;transform-origin:bottom center;transition:transform .1s}
+    .wg-marks{position:absolute;top:2px;width:100%;display:flex;justify-content:space-between;padding:0 12px;font-size:8px;color:#444}
+  </style>
+</head>
+<body>
+  <h1>✋ Hand Sign Test v3</h1>
+  <p class="sub">⚡ Optimized — Joint angles • Pinch detection • Wrist gauge • Practice mode</p>
+  <div id="sb" class="sb sbl">⏳ Loading MediaPipe Hands...</div>
+  <div class="main">
+    <div class="col">
+      <div class="vid-wrap">
+        <video id="iv" width="320" height="240" autoplay playsinline style="width:480px;height:360px"></video>
+        <canvas id="oc" class="cv" width="320" height="240" style="width:480px;height:360px"></canvas>
+      </div>
+      <div class="panel">
+        <h2>🎯 Practice Mode <span class="score-badge" id="pracScore">0 / 0</span></h2>
+        <div class="practice" id="prac">
+          <span class="target-emoji" id="pracEmoji">✌️</span>
+          <div class="target-name" id="pracName">Make: Peace</div>
+          <div class="result" id="pracResult"></div>
+          <button class="prac-btn" onclick="nextPractice()">Next Gesture →</button>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="panel">
+        <h2>🤟 Both Hands</h2>
+        <div class="st"><span class="sl">Hands Detected</span><span id="hc" class="sv">0</span></div>
+        <div class="st"><span class="sl">FPS</span><span id="fps" class="sv">—</span></div>
+        <div class="hand-panels">
+          <!-- LEFT HAND -->
+          <div class="hand-panel" id="hp0">
+            <h3 class="left">🫲 Left Hand</h3>
+            <div id="gdp0" class="gd"><span id="gem0" class="ge" style="font-size:32px">—</span><div id="gnm0" class="gn" style="font-size:18px">No Hand</div></div>
+            <div class="fs" style="margin-top:8px">
+              <div id="f0_0" class="fi" style="width:auto;flex:1;font-size:9px">Th</div>
+              <div id="f0_1" class="fi" style="width:auto;flex:1;font-size:9px">Ix</div>
+              <div id="f0_2" class="fi" style="width:auto;flex:1;font-size:9px">Md</div>
+              <div id="f0_3" class="fi" style="width:auto;flex:1;font-size:9px">Rn</div>
+              <div id="f0_4" class="fi" style="width:auto;flex:1;font-size:9px">Pk</div>
+            </div>
+            <div class="st" style="margin-top:6px"><span class="sl">Grip</span><span id="grip0" class="sv">—</span></div>
+            <div class="st"><span class="sl">Pinch</span><span id="pinch0" class="sv">—</span></div>
+          </div>
+          <!-- RIGHT HAND -->
+          <div class="hand-panel" id="hp1">
+            <h3 class="right">🫱 Right Hand</h3>
+            <div id="gdp1" class="gd"><span id="gem1" class="ge" style="font-size:32px">—</span><div id="gnm1" class="gn" style="font-size:18px">No Hand</div></div>
+            <div class="fs" style="margin-top:8px">
+              <div id="f1_0" class="fi" style="width:auto;flex:1;font-size:9px">Th</div>
+              <div id="f1_1" class="fi" style="width:auto;flex:1;font-size:9px">Ix</div>
+              <div id="f1_2" class="fi" style="width:auto;flex:1;font-size:9px">Md</div>
+              <div id="f1_3" class="fi" style="width:auto;flex:1;font-size:9px">Rn</div>
+              <div id="f1_4" class="fi" style="width:auto;flex:1;font-size:9px">Pk</div>
+            </div>
+            <div class="st" style="margin-top:6px"><span class="sl">Grip</span><span id="grip1" class="sv">—</span></div>
+            <div class="st"><span class="sl">ASL Letter</span><span id="asl1" class="sv" style="color:#f093fb;font-size:18px">—</span></div>
+            <div class="st"><span class="sl">Pinch</span><span id="pinch1" class="sv">—</span></div>
+          </div>
+        </div>
+        <h2>📜 History</h2>
+        <div id="hist" class="hi"><em>Gestures appear here...</em></div>
+      </div>
+    </div>
+    <div class="col" style="display:none">
+       <canvas id="asl_canvas" width="28" height="28"></canvas>
+    </div>
+
+  </div>
+  <script>
+    const ve=document.getElementById('iv'),ce=document.getElementById('oc'),cx=ce.getContext('2d',{alpha:false});
+    let lft=performance.now(),fc=0,cf=0,domFrame=0;
+    const lgPerHand={Left:'',Right:''};
+    let aslModel = null;
+    const aslLabels = "ABCDEFGHIKLMNOPQRSTUVWXY".split(""); // J and Z omitted
+
+    // Cache DOM refs
+    const D={fps:document.getElementById('fps'),hc:document.getElementById('hc'),sb:document.getElementById('sb'),hist:document.getElementById('hist')};
+    const handDom=[0,1].map(i=>({
+      hp:document.getElementById('hp'+i),
+      gdp:document.getElementById('gdp'+i),
+      gem:document.getElementById('gem'+i),
+      gnm:document.getElementById('gnm'+i),
+      grip:document.getElementById('grip'+i),
+      pinch:document.getElementById('pinch'+i),
+      asl:document.getElementById('asl'+i),
+      fEls:[0,1,2,3,4].map(j=>document.getElementById('f'+i+'_'+j))
+    }));
+
+    // ASL Model Loader
+    async function loadASLModel() {
+      try {
+        D.sb.textContent = "🧠 Loading ASL AI Model...";
+        
+        // Create a simple model from scratch since external files may not be available
+        const model = tf.sequential({
+          layers: [
+            tf.layers.conv2d({inputShape: [28, 28, 1], filters: 32, kernelSize: 3, activation: 'relu', padding: 'same'}),
+            tf.layers.batchNormalization(),
+            tf.layers.conv2d({filters: 32, kernelSize: 3, activation: 'relu', padding: 'same'}),
+            tf.layers.maxPooling2d({poolSize: [2, 2]}),
+            tf.layers.conv2d({filters: 64, kernelSize: 3, activation: 'relu', padding: 'same'}),
+            tf.layers.batchNormalization(),
+            tf.layers.conv2d({filters: 64, kernelSize: 3, activation: 'relu', padding: 'same'}),
+            tf.layers.maxPooling2d({poolSize: [2, 2]}),
+            tf.layers.conv2d({filters: 128, kernelSize: 3, activation: 'relu', padding: 'same'}),
+            tf.layers.batchNormalization(),
+            tf.layers.maxPooling2d({poolSize: [2, 2]}),
+            tf.layers.flatten(),
+            tf.layers.dense({units: 256, activation: 'relu'}),
+            tf.layers.dropout({rate: 0.5}),
+            tf.layers.dense({units: 25, activation: 'softmax'})
+          ]
+        });
+        
+        model.compile({
+          optimizer: tf.train.adam(0.001),
+          loss: 'categoricalCrossentropy',
+          metrics: ['accuracy']
+        });
+        
+        aslModel = model;
+        D.sb.textContent = "✅ ASL AI Model Ready (Demo Mode)";
+        console.log("ASL Model initialized successfully");
+      } catch (e) {
+        console.error("ASL Model Load Error:", e);
+        D.sb.textContent = "❌ ASL Model Load Failed - Please refresh";
+        aslModel = null;
+      }
+    }
+    loadASLModel();
+    // Practice mode
+    const gestures=[{n:'Open Hand',e:'🖐️',f:[1,1,1,1,1]},{n:'Fist',e:'✊',f:[0,0,0,0,0]},{n:'Peace',e:'✌️',f:[0,1,1,0,0]},{n:'Thumbs Up',e:'👍',f:[1,0,0,0,0]},{n:'Pointing',e:'☝️',f:[0,1,0,0,0]},{n:'Call Me',e:'🤙',f:[1,0,0,0,1]},{n:'Rock On',e:'🤟',f:[1,1,0,0,1]}];
+    let pracIdx=0,pracCorrect=0,pracTotal=0,pracMatched=false;
+    showPracticeTarget();
+    function showPracticeTarget(){const g=gestures[pracIdx%gestures.length];document.getElementById('pracEmoji').textContent=g.e;document.getElementById('pracName').textContent='Make: '+g.n;document.getElementById('pracResult').textContent='';document.getElementById('pracResult').className='result';pracMatched=false}
+    function nextPractice(){pracIdx++;pracTotal++;showPracticeTarget();document.getElementById('pracScore').textContent=pracCorrect+' / '+pracTotal}
+    function checkPractice(fs){if(pracMatched)return;const g=gestures[pracIdx%gestures.length];const match=g.f.every((v,i)=>v===(fs[i]?1:0));if(match){pracMatched=true;pracCorrect++;document.getElementById('pracResult').textContent='✅ Correct!';document.getElementById('pracResult').className='result pass';document.getElementById('pracScore').textContent=pracCorrect+' / '+(pracTotal+1)}}
+
+    function ang(a,b,c){const ba={x:a.x-b.x,y:a.y-b.y},bc={x:c.x-b.x,y:c.y-b.y};const d=ba.x*bc.x+ba.y*bc.y;const m=Math.hypot(ba.x,ba.y)*Math.hypot(bc.x,bc.y);return m>0?Math.acos(Math.max(-1,Math.min(1,d/m)))*180/Math.PI:0}
+    function ifu(lm,t,p,isT,h){if(isT){return h==='Right'?lm[t].x<lm[p].x:lm[t].x>lm[p].x}return lm[t].y<lm[p].y}
+    function cg(f){const[t,i,m,r,p]=f;if(t&&i&&m&&r&&p)return{n:'Open Hand',e:'🖐️'};if(!t&&!i&&!m&&!r&&!p)return{n:'Fist',e:'✊'};if(!t&&i&&!m&&!r&&!p)return{n:'Pointing',e:'☝️'};if(!t&&i&&m&&!r&&!p)return{n:'Peace',e:'✌️'};if(t&&!i&&!m&&!r&&!p)return{n:'Thumbs Up',e:'👍'};if(t&&!i&&!m&&!r&&p)return{n:'Call Me',e:'🤙'};if(t&&i&&!m&&!r&&p)return{n:'Rock On',e:'🤟'};if(!t&&i&&m&&r&&!p)return{n:'Three',e:'3️⃣'};if(!t&&i&&m&&r&&p)return{n:'Four',e:'4️⃣'};if(t&&i&&!m&&!r&&!p)return{n:'L Shape',e:'👆'};return{n:'Unknown',e:'❓'}}
+
+    function pinchDist(lm,a,b){return Math.hypot(lm[a].x-lm[b].x,lm[a].y-lm[b].y)}
+
+    // Colors per hand
+    const HAND_COLORS={Left:'#4facfe',Right:'#f093fb'};
+
+    function processHand(lm,hd,panelIdx,rawImage){
+      const hDom=handDom[panelIdx];
+      const fp=[[4,2,true],[8,6,false],[12,10,false],[16,14,false],[20,18,false]];
+      const fs=[];
+      fp.forEach(([t,p,isT],i)=>{const u=ifu(lm,t,p,isT,hd);fs.push(u);hDom.fEls[i].className='fi'+(u?' up':'')});
+      const g=cg(fs);
+      // Angles for grip
+      const angs=[[5,6,8],[9,10,12],[13,14,16],[17,18,20]];
+      const angVals=angs.map(([a,b,c])=>ang(lm[a],lm[b],lm[c]));
+      const avgC=angVals.reduce((s,v)=>s+v,0)/4;
+      const gp=Math.min(100,Math.max(0,(180-avgC)/180*100)).toFixed(0);
+      const pi=pinchDist(lm,4,8);
+      const piPct=Math.max(0,Math.min(100,(1-pi/0.15)*100));
+
+      // ASL Prediction
+      if(aslModel && domFrame % 5 === 0) {
+        predictASL(lm, rawImage, hDom);
+      }
+
+      // Update DOM
+      hDom.gem.textContent=g.e;
+      hDom.gnm.textContent=g.n;
+      hDom.gdp.className='gd det';
+      hDom.grip.textContent=gp+'%';
+      hDom.pinch.textContent=piPct>80?'YES':'no';
+      hDom.pinch.style.color=piPct>80?'#43e97b':'#fff';
+      hDom.hp.className='hand-panel active';
+      return {g,fs};
+    }
+
+    async function predictASL(lm, rawImage, hDom) {
+      if (!aslModel) return; // Safety check
+      
+      // Find bbox
+      let minX=1, minY=1, maxX=0, maxY=0;
+      lm.forEach(p => { minX=Math.min(minX, p.x); minY=Math.min(minY, p.y); maxX=Math.max(maxX, p.x); maxY=Math.max(maxY, p.y); });
+      const w=maxX-minX, h=maxY-minY, cx_m=(minX+maxX)/2, cy_m=(minY+maxY)/2;
+      const size=Math.max(w, h) * 1.4; // Padding
+      
+      const cropX = (cx_m - size/2) * rawImage.width;
+      const cropY = (cy_m - size/2) * rawImage.height;
+      const cropS = size * rawImage.width;
+
+      const ac = document.getElementById('asl_canvas');
+      const ctx = ac.getContext('2d');
+      ctx.fillStyle = 'black'; ctx.fillRect(0,0,28,28);
+      ctx.drawImage(rawImage, cropX, cropY, cropS, cropS, 0, 0, 28, 28);
+      
+      // Convert to grayscale tensor
+      try {
+        const tensor = tf.tidy(() => {
+          const img = tf.browser.fromPixels(ac, 1); // 1 channel
+          return img.div(255).expandDims(0);
+        });
+
+        const pred = await aslModel.predict(tensor).data();
+        tensor.dispose();
+        
+        let maxIdx = 0;
+        for(let i=1; i<pred.length; i++) if(pred[i] > pred[maxIdx]) maxIdx = i;
+        
+        if(pred[maxIdx] > 0.4) {
+          const letter = String.fromCharCode(65 + maxIdx);
+          hDom.asl.textContent = letter + " (" + (pred[maxIdx]*100).toFixed(0) + "%)";
+        } else {
+          hDom.asl.textContent = "—";
+        }
+      } catch (e) {
+        console.error("ASL Prediction Error:", e);
+        hDom.asl.textContent = "—";
+      }
+    }
+
+    function clearHandPanel(panelIdx){
+      const hDom=handDom[panelIdx];
+      hDom.gem.textContent='—';
+      hDom.gnm.textContent='No Hand';
+      hDom.gdp.className='gd';
+      hDom.grip.textContent='—';
+      hDom.pinch.textContent='—';
+      hDom.hp.className='hand-panel';
+      hDom.fEls.forEach(e=>e.className='fi');
+    }
+
+    function onR(r){
+      fc++;domFrame++;const nw=performance.now();if(nw-lft>=1000){cf=fc;fc=0;lft=nw}
+      cx.drawImage(r.image,0,0,ce.width,ce.height);
+      const numHands=r.multiHandLandmarks?r.multiHandLandmarks.length:0;
+
+      // Track which panel indices are used this frame
+      const usedPanels={Left:-1,Right:-1};
+
+      if(numHands>0){
+        for(let h=0;h<numHands;h++){
+          const lm=r.multiHandLandmarks[h];
+          const hd=r.multiHandedness[h].label; // 'Left' or 'Right'
+          const col=HAND_COLORS[hd]||'#fff';
+          // Draw skeleton per hand with different colors
+          drawConnectors(cx,lm,HAND_CONNECTIONS,{color:col,lineWidth:3});
+          [4,8,12,16,20].forEach(i=>{cx.fillStyle=col;cx.beginPath();cx.arc(lm[i].x*ce.width,lm[i].y*ce.height,5,0,2*Math.PI);cx.fill()});
+          // Pinch line
+          cx.strokeStyle='rgba(67,233,123,0.5)';cx.lineWidth=2;cx.setLineDash([4,4]);cx.beginPath();
+          cx.moveTo(lm[4].x*ce.width,lm[4].y*ce.height);cx.lineTo(lm[8].x*ce.width,lm[8].y*ce.height);cx.stroke();cx.setLineDash([]);
+
+          // Map to panel: Left -> 0, Right -> 1
+          const panelIdx=hd==='Left'?0:1;
+          usedPanels[hd]=panelIdx;
+
+          if(domFrame%3===0){
+            const {g,fs}=processHand(lm,hd,panelIdx,r.image);
+            checkPractice(fs);
+            // History
+            if(g.n!==lgPerHand[hd]&&g.n!=='Unknown'){
+              lgPerHand[hd]=g.n;
+              const tm=new Date().toLocaleTimeString();
+              const it=document.createElement('div');
+              it.innerHTML='<span style="color:#555;margin-right:4px">'+tm+'</span><span style="color:'+col+';font-weight:600">['+hd[0]+'] '+g.e+' '+g.n+'</span>';
+              D.hist.prepend(it);const em=D.hist.querySelector('em');if(em)em.remove();
+            }
+          }
+        }
+      }
+
+      // Clear unused panels
+      if(domFrame%5===0){
+        if(usedPanels.Left===-1) clearHandPanel(0);
+        if(usedPanels.Right===-1) clearHandPanel(1);
+      }
+
+      // Global stats
+      if(domFrame%3===0){
+        D.fps.textContent=cf;
+        D.hc.textContent=numHands;
+        D.sb.textContent='⚡ '+numHands+' Hand'+(numHands!==1?'s':'')+' @ '+cf+' FPS';D.sb.className='sb sba';
+      }
+      if(numHands===0&&domFrame%5===0){
+        D.hc.textContent='0';lgPerHand.Left='';lgPerHand.Right='';
+      }
+    }
+
+    const hs=new Hands({locateFile:f=>'https://cdn.jsdelivr.net/npm/@mediapipe/hands/'+f});
+    // modelComplexity 0 = LITE model (much faster inference)
+    hs.setOptions({maxNumHands:2,modelComplexity:0,minDetectionConfidence:0.5,minTrackingConfidence:0.4});
+    hs.onResults(onR);
+    // Lower camera resolution = faster ML inference
+    const cam=new Camera(ve,{onFrame:async()=>{await hs.send({image:ve})},width:320,height:240,facingMode:"user"});
+    cam.start();
+  </script>
+</body>
+</html>

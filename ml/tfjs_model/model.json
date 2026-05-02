@@ -1,0 +1,327 @@
+{
+  "format": "gazetalk_custom",
+  "num_classes": 25,
+  "input_shape": [
+    28,
+    28,
+    1
+  ],
+  "labels": {
+    "0": "A",
+    "1": "B",
+    "2": "C",
+    "3": "D",
+    "4": "E",
+    "5": "F",
+    "6": "G",
+    "7": "H",
+    "8": "I",
+    "9": "J",
+    "10": "K",
+    "11": "L",
+    "12": "M",
+    "13": "N",
+    "14": "O",
+    "15": "P",
+    "16": "Q",
+    "17": "R",
+    "18": "S",
+    "19": "T",
+    "20": "U",
+    "21": "V",
+    "22": "W",
+    "23": "X",
+    "24": "Y"
+  },
+  "weights": [
+    {
+      "name": "conv2d",
+      "shape": [
+        3,
+        3,
+        1,
+        32
+      ],
+      "dtype": "float32",
+      "offset": 0,
+      "size": 1152
+    },
+    {
+      "name": "conv2d",
+      "shape": [
+        32
+      ],
+      "dtype": "float32",
+      "offset": 1152,
+      "size": 128
+    },
+    {
+      "name": "batch_normalization",
+      "shape": [
+        32
+      ],
+      "dtype": "float32",
+      "offset": 1280,
+      "size": 128
+    },
+    {
+      "name": "batch_normalization",
+      "shape": [
+        32
+      ],
+      "dtype": "float32",
+      "offset": 1408,
+      "size": 128
+    },
+    {
+      "name": "batch_normalization",
+      "shape": [
+        32
+      ],
+      "dtype": "float32",
+      "offset": 1536,
+      "size": 128
+    },
+    {
+      "name": "batch_normalization",
+      "shape": [
+        32
+      ],
+      "dtype": "float32",
+      "offset": 1664,
+      "size": 128
+    },
+    {
+      "name": "conv2d_1",
+      "shape": [
+        3,
+        3,
+        32,
+        32
+      ],
+      "dtype": "float32",
+      "offset": 1792,
+      "size": 36864
+    },
+    {
+      "name": "conv2d_1",
+      "shape": [
+        32
+      ],
+      "dtype": "float32",
+      "offset": 38656,
+      "size": 128
+    },
+    {
+      "name": "conv2d_2",
+      "shape": [
+        3,
+        3,
+        32,
+        64
+      ],
+      "dtype": "float32",
+      "offset": 38784,
+      "size": 73728
+    },
+    {
+      "name": "conv2d_2",
+      "shape": [
+        64
+      ],
+      "dtype": "float32",
+      "offset": 112512,
+      "size": 256
+    },
+    {
+      "name": "batch_normalization_1",
+      "shape": [
+        64
+      ],
+      "dtype": "float32",
+      "offset": 112768,
+      "size": 256
+    },
+    {
+      "name": "batch_normalization_1",
+      "shape": [
+        64
+      ],
+      "dtype": "float32",
+      "offset": 113024,
+      "size": 256
+    },
+    {
+      "name": "batch_normalization_1",
+      "shape": [
+        64
+      ],
+      "dtype": "float32",
+      "offset": 113280,
+      "size": 256
+    },
+    {
+      "name": "batch_normalization_1",
+      "shape": [
+        64
+      ],
+      "dtype": "float32",
+      "offset": 113536,
+      "size": 256
+    },
+    {
+      "name": "conv2d_3",
+      "shape": [
+        3,
+        3,
+        64,
+        64
+      ],
+      "dtype": "float32",
+      "offset": 113792,
+      "size": 147456
+    },
+    {
+      "name": "conv2d_3",
+      "shape": [
+        64
+      ],
+      "dtype": "float32",
+      "offset": 261248,
+      "size": 256
+    },
+    {
+      "name": "conv2d_4",
+      "shape": [
+        3,
+        3,
+        64,
+        128
+      ],
+      "dtype": "float32",
+      "offset": 261504,
+      "size": 294912
+    },
+    {
+      "name": "conv2d_4",
+      "shape": [
+        128
+      ],
+      "dtype": "float32",
+      "offset": 556416,
+      "size": 512
+    },
+    {
+      "name": "batch_normalization_2",
+      "shape": [
+        128
+      ],
+      "dtype": "float32",
+      "offset": 556928,
+      "size": 512
+    },
+    {
+      "name": "batch_normalization_2",
+      "shape": [
+        128
+      ],
+      "dtype": "float32",
+      "offset": 557440,
+      "size": 512
+    },
+    {
+      "name": "batch_normalization_2",
+      "shape": [
+        128
+      ],
+      "dtype": "float32",
+      "offset": 557952,
+      "size": 512
+    },
+    {
+      "name": "batch_normalization_2",
+      "shape": [
+        128
+      ],
+      "dtype": "float32",
+      "offset": 558464,
+      "size": 512
+    },
+    {
+      "name": "dense",
+      "shape": [
+        1152,
+        256
+      ],
+      "dtype": "float32",
+      "offset": 558976,
+      "size": 1179648
+    },
+    {
+      "name": "dense",
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "offset": 1738624,
+      "size": 1024
+    },
+    {
+      "name": "batch_normalization_3",
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "offset": 1739648,
+      "size": 1024
+    },
+    {
+      "name": "batch_normalization_3",
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "offset": 1740672,
+      "size": 1024
+    },
+    {
+      "name": "batch_normalization_3",
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "offset": 1741696,
+      "size": 1024
+    },
+    {
+      "name": "batch_normalization_3",
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "offset": 1742720,
+      "size": 1024
+    },
+    {
+      "name": "dense_1",
+      "shape": [
+        256,
+        25
+      ],
+      "dtype": "float32",
+      "offset": 1743744,
+      "size": 25600
+    },
+    {
+      "name": "dense_1",
+      "shape": [
+        25
+      ],
+      "dtype": "float32",
+      "offset": 1769344,
+      "size": 100
+    }
+  ],
+  "weights_file": "weights.bin",
+  "architecture": "CNN_BN_Dropout"
+}

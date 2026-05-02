@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>GazeTalk - Eye Tracking Test v3 (Optimized)</title>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;background:#0a0a1a;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+    h1{margin-top:16px;font-size:26px;background:linear-gradient(135deg,#4facfe,#00f2fe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .sub{color:#888;margin-bottom:8px;font-size:13px}
+    .tabs{display:flex;gap:5px;margin-bottom:8px}
+    .tab{padding:8px 16px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);cursor:pointer;font-size:12px;font-weight:600;color:#888;transition:all .2s}
+    .tab.active{background:rgba(79,172,254,0.2);border-color:#4facfe;color:#4facfe}
+    .main{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;padding:0 15px;width:100%;max-width:1400px}
+    .col{display:flex;flex-direction:column;gap:15px}
+    .vid-wrap{position:relative;border-radius:16px;overflow:hidden;border:2px solid rgba(79,172,254,0.3);box-shadow:0 0 30px rgba(79,172,254,0.1)}
+    video{display:block;border-radius:14px}
+    .cv{position:absolute;top:0;left:0;border-radius:14px}
+    .panel{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px;width:320px;backdrop-filter:blur(10px)}
+    .panel h2{font-size:14px;margin-bottom:8px;color:#4facfe;display:flex;align-items:center;gap:6px}
+    .st{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px}
+    .sl{color:#888}.sv{font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+    .sv.g{color:#43e97b}.sv.w{color:#ff9500}.sv.b{color:#ff3b30}
+    .bi{width:100%;height:55px;border-radius:12px;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;margin-top:8px;transition:all .15s;border:2px solid rgba(255,255,255,0.08)}
+    .bi.ac{background:linear-gradient(135deg,#43e97b,#38f9d7);color:#111;border-color:#43e97b;box-shadow:0 0 20px rgba(67,233,123,0.3)}
+    .ctrl label{display:flex;justify-content:space-between;font-size:11px;color:#888;margin-bottom:2px}
+    .ctrl input[type=range]{width:100%;accent-color:#4facfe;height:5px;margin-bottom:8px}
+    .sb{margin:6px 0;padding:8px 14px;border-radius:10px;font-size:12px;text-align:center}
+    .sbl{background:rgba(255,149,0,0.15);color:#ff9500}
+    .sba{background:rgba(67,233,123,0.15);color:#43e97b}
+    /* Heatmap canvas */
+    .heatmap-wrap{position:relative;width:320px;height:200px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)}
+    .heatmap-wrap canvas{width:100%;height:100%}
+    .heatmap-label{position:absolute;bottom:4px;width:100%;text-align:center;font-size:10px;color:#555}
+    /* Calibration */
+    .cal-overlay{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.92);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center}
+    .cal-overlay.show{display:flex}
+    .cal-target{width:60px;height:60px;border-radius:50%;border:3px solid #4facfe;position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;transition:all .5s ease;animation:calPulse 1.2s infinite}
+    .cal-target::after{content:'';width:10px;height:10px;border-radius:50%;background:#4facfe}
+    .cal-target.done{border-color:#43e97b;animation:none}.cal-target.done::after{background:#43e97b}
+    @keyframes calPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.15)}}
+    .cal-info{color:#fff;font-size:18px;font-weight:600;margin-bottom:30px;text-align:center}
+    .cal-score{font-size:48px;font-weight:700;margin:20px 0}
+    .cal-btn{padding:12px 30px;border-radius:12px;background:linear-gradient(135deg,#4facfe,#00f2fe);color:#111;font-weight:700;font-size:14px;border:none;cursor:pointer;margin-top:10px}
+    /* Gaze keyboard */
+    .gaze-kb{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:8px}
+    .gk{height:36px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#888;transition:all .12s}
+    .gk.hov{background:rgba(0,242,254,0.7);color:#111;border-color:#00f2fe;transform:scale(1.15);z-index:5;box-shadow:0 0 12px rgba(0,242,254,0.4)}
+    .typed-out{min-height:36px;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);font-size:14px;font-weight:600;color:#fff;word-break:break-all;margin-bottom:8px}
+    .mode-badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700;margin-left:6px}
+    .mode-iris{background:rgba(79,172,254,0.2);color:#4facfe}
+    .mode-nose{background:rgba(255,149,0,0.2);color:#ff9500}
+  </style>
+</head>
+<body>
+  <h1>👁️ Eye Tracking Test v3</h1>
+  <p class="sub">⚡ Optimized — Iris/nose tracking • Heatmap • Calibration • Gaze keyboard • Deadzone</p>
+  <div class="tabs">
+    <div class="tab active" onclick="setMode('iris')">🔵 Iris</div>
+    <div class="tab" onclick="setMode('nose')">🔴 Nose</div>
+    <div class="tab" onclick="startCalibration()">🎯 Calibrate</div>
+  </div>
+  <div id="sb" class="sb sbl">⏳ Loading MediaPipe Face Mesh...</div>
+  <div class="main">
+    <div class="col">
+      <div class="vid-wrap">
+        <video id="iv" width="320" height="240" autoplay playsinline style="width:480px;height:360px"></video>
+        <canvas id="oc" class="cv" width="320" height="240" style="width:480px;height:360px"></canvas>
+      </div>
+      <div class="heatmap-wrap">
+        <canvas id="hm" width="320" height="200"></canvas>
+        <div class="heatmap-label">Gaze Heatmap — Shows where you look most</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="panel">
+        <h2>⚙️ Controls</h2>
+        <div class="ctrl">
+          <label><span>Smoothing</span><span id="smV">0.30</span></label>
+          <input type="range" id="smS" min="5" max="80" value="30" oninput="SM=this.value/100;document.getElementById('smV').textContent=SM.toFixed(2)">
+          <label><span>Sensitivity</span><span id="seV">2.2</span></label>
+          <input type="range" id="seS" min="10" max="40" value="22" oninput="SN=this.value/10;document.getElementById('seV').textContent=SN.toFixed(1)">
+          <label><span>Blink Threshold</span><span id="btV">0.22</span></label>
+          <input type="range" id="btS" min="10" max="40" value="22" oninput="BT=this.value/100;document.getElementById('btV').textContent=BT.toFixed(2)">
+          <label><span>Deadzone (anti-jitter)</span><span id="dzV">0.008</span></label>
+          <input type="range" id="dzS" min="0" max="30" value="8" oninput="DZ=this.value/1000;document.getElementById('dzV').textContent=DZ.toFixed(3)">
+        </div>
+      </div>
+      <div class="panel">
+        <h2>📊 Telemetry <span id="mb" class="mode-badge mode-iris">IRIS</span></h2>
+        <div class="st"><span class="sl">Raw X / Y</span><span id="raw" class="sv">— / —</span></div>
+        <div class="st"><span class="sl">Gaze X / Y</span><span id="gaze" class="sv">— / —</span></div>
+        <div class="st"><span class="sl">Left EAR</span><span id="lE" class="sv">—</span></div>
+        <div class="st"><span class="sl">Right EAR</span><span id="rE" class="sv">—</span></div>
+        <div class="st"><span class="sl">Head Tilt</span><span id="tilt" class="sv">—</span></div>
+        <div class="st"><span class="sl">Velocity</span><span id="vel" class="sv">—</span></div>
+        <div class="st"><span class="sl">Blinks</span><span id="bc" class="sv g">0</span></div>
+        <div class="st"><span class="sl">FPS</span><span id="fps" class="sv">—</span></div>
+        <div id="blk" class="bi">EYES OPEN</div>
+      </div>
+      <div class="panel">
+        <h2>⌨️ Gaze Keyboard Test</h2>
+        <div id="typed" class="typed-out">_</div>
+        <div class="gaze-kb" id="kb"></div>
+      </div>
+    </div>
+  </div>
+  <!-- Calibration overlay -->
+  <div id="calOverlay" class="cal-overlay">
+    <div class="cal-info" id="calInfo">Look at the pulsing dot and hold still for 2 seconds.</div>
+    <div class="cal-score" id="calScore" style="display:none"></div>
+    <div id="calTarget" class="cal-target" style="display:none"></div>
+    <button class="cal-btn" id="calBtn" style="display:none" onclick="closeCalibration()">Done</button>
+  </div>
+  <script>
+    const ve=document.getElementById('iv'),ce=document.getElementById('oc'),cx=ce.getContext('2d',{alpha:false});
+    const hmCe=document.getElementById('hm'),hmCx=hmCe.getContext('2d');
+    let SM=0.30,SN=2.2,BT=0.22,DZ=0.008;
+    let sX=0.5,sY=0.5,bf=0,tb=0,lft=performance.now(),fc=0,cfps=0;
+    let mode='iris',prevX=0.5,prevY=0.5;
+    // Cache all DOM refs once
+    const D={fps:document.getElementById('fps'),raw:document.getElementById('raw'),gaze:document.getElementById('gaze'),lE:document.getElementById('lE'),rE:document.getElementById('rE'),tilt:document.getElementById('tilt'),vel:document.getElementById('vel'),bc:document.getElementById('bc'),blk:document.getElementById('blk'),sb:document.getElementById('sb'),mb:document.getElementById('mb'),typed:document.getElementById('typed')};
+    // Heatmap data — smaller for speed
+    const hmW=160,hmH=100;
+    const heatData=new Float32Array(hmW*hmH);
+    let hmMax=1;
+    // Keyboard
+    const KEYS='ABCDEFGHIJKLMNOPQRSTUVWXYZ ⌫'.split('');
+    let typedText='',hovKey=null,dwellT=null,dwellStart=0;
+    const KB_DWELL=1200;
+    const kbEl=document.getElementById('kb');
+    const keyEls={};const keyRects={};
+    KEYS.forEach(k=>{const d=document.createElement('div');d.className='gk';d.textContent=k==' '?'␣':k;d.dataset.key=k;kbEl.appendChild(d);keyEls[k]=d});
+    // Cache key rects after layout settles
+    setTimeout(()=>{for(const[k,el] of Object.entries(keyEls)){const r=el.getBoundingClientRect();keyRects[k]={l:r.left,r:r.right,t:r.top,b:r.bottom}}},2000);
+    // Calibration
+    const calPoints=[[.15,.15],[.5,.15],[.85,.15],[.15,.5],[.5,.5],[.85,.5],[.15,.85],[.5,.85],[.85,.85]];
+    let calActive=false,calIdx=0,calDwell=0,calHits=0,calOffsets=[];
+    // DOM update throttle
+    let domFrame=0;
+
+    function setMode(m){mode=m;document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===(m==='iris'?0:1)));
+      D.mb.textContent=m.toUpperCase();D.mb.className='mode-badge '+(m==='iris'?'mode-iris':'mode-nose')}
+
+    function ear(lm,t,b,l,r){const v=Math.hypot(lm[t].x-lm[b].x,lm[t].y-lm[b].y),h=Math.hypot(lm[l].x-lm[r].x,lm[l].y-lm[r].y);return h>0?v/h:0}
+
+    // Pre-allocate heatmap image
+    const hmImg=hmCx.createImageData(hmW,hmH);
+    function updateHeatmap(gx,gy){
+      const px=Math.floor(gx*(hmW-1)),py=Math.floor(gy*(hmH-1));
+      // Smaller 3x3 splat for speed
+      for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){
+        const nx=px+dx,ny=py+dy;
+        if(nx>=0&&nx<hmW&&ny>=0&&ny<hmH){
+          const idx=ny*hmW+nx;
+          heatData[idx]+=0.5;
+          if(heatData[idx]>hmMax)hmMax=heatData[idx];
+        }
+      }
+      // Render every 20 frames
+      if(domFrame%20===0){
+        const d=hmImg.data;
+        for(let i=0;i<heatData.length;i++){
+          const t=Math.min(1,heatData[i]/hmMax);
+          const pi=i*4;
+          if(t<0.25){d[pi]=0;d[pi+1]=(t*1020)|0;d[pi+2]=(t*1020)|0}
+          else if(t<0.5){d[pi]=0;d[pi+1]=255;d[pi+2]=((1-(t-0.25)*4)*255)|0}
+          else if(t<0.75){d[pi]=((t-0.5)*1020)|0;d[pi+1]=255;d[pi+2]=0}
+          else{d[pi]=255;d[pi+1]=((1-(t-0.75)*4)*255)|0;d[pi+2]=0}
+          d[pi+3]=(t*220)|0;
+        }
+        hmCx.putImageData(hmImg,0,0);
+      }
+    }
+
+    let prevHovEl=null;
+    function checkKBHover(gx,gy){
+      const ax=gx*window.innerWidth,ay=gy*window.innerHeight;
+      let found=null;
+      // Use cached rects — much faster than getBoundingClientRect per frame
+      for(const[k,rc] of Object.entries(keyRects)){
+        if(ax>=rc.l&&ax<=rc.r&&ay>=rc.t&&ay<=rc.b){found=k;break}
+      }
+      if(prevHovEl){prevHovEl.classList.remove('hov');prevHovEl=null}
+      if(found){
+        keyEls[found].classList.add('hov');prevHovEl=keyEls[found];
+        if(found!==hovKey){hovKey=found;dwellStart=Date.now()}
+        else if(Date.now()-dwellStart>KB_DWELL){
+          if(found==='⌫')typedText=typedText.slice(0,-1);
+          else typedText+=found;
+          D.typed.textContent=typedText+'_';
+          hovKey=null;dwellStart=Date.now()+9999;
+        }
+      }else{hovKey=null}
+    }
+
+    function startCalibration(){
+      calActive=true;calIdx=0;calDwell=0;calHits=0;calOffsets=[];
+      const ov=document.getElementById('calOverlay');ov.classList.add('show');
+      document.getElementById('calBtn').style.display='none';
+      document.getElementById('calScore').style.display='none';
+      document.getElementById('calInfo').textContent='Look at the pulsing dot and hold still...';
+      showCalTarget();
+    }
+    function showCalTarget(){
+      if(calIdx>=calPoints.length){finishCalibration();return}
+      const t=document.getElementById('calTarget');t.style.display='flex';t.className='cal-target';
+      t.style.left=(calPoints[calIdx][0]*100)+'%';t.style.top=(calPoints[calIdx][1]*100)+'%';
+      document.getElementById('calInfo').textContent='Point '+(calIdx+1)+'/'+calPoints.length+' — Hold gaze...';
+      calDwell=0;
+    }
+    function finishCalibration(){
+      document.getElementById('calTarget').style.display='none';
+      const avgOff=calOffsets.length>0?calOffsets.reduce((a,b)=>a+b,0)/calOffsets.length:1;
+      const score=Math.max(0,Math.min(100,Math.round((1-avgOff*5)*100)));
+      const sc=document.getElementById('calScore');sc.style.display='block';
+      sc.textContent=score+'%';sc.style.color=score>70?'#43e97b':score>40?'#ff9500':'#ff3b30';
+      document.getElementById('calInfo').textContent='Calibration Accuracy: '+(score>70?'Excellent!':score>40?'Good — try adjusting sensitivity':'Poor — adjust sliders and retry');
+      document.getElementById('calBtn').style.display='block';calActive=false;
+    }
+    function closeCalibration(){document.getElementById('calOverlay').classList.remove('show')}
+
+    function onR(r){
+      fc++;domFrame++;const nw=performance.now();if(nw-lft>=1000){cfps=fc;fc=0;lft=nw}
+      // Draw camera feed — skip canvas overlay every other frame for speed
+      cx.drawImage(r.image,0,0,ce.width,ce.height);
+      if(r.multiFaceLandmarks&&r.multiFaceLandmarks.length>0){
+        const lm=r.multiFaceLandmarks[0];
+        // Skip expensive tesselation — only draw eyes (much faster)
+        drawConnectors(cx,lm,FACEMESH_RIGHT_EYE,{color:'#43e97b',lineWidth:2});
+        drawConnectors(cx,lm,FACEMESH_LEFT_EYE,{color:'#43e97b',lineWidth:2});
+        // Iris markers — draw only every 2nd frame
+        if(lm.length>473&&domFrame%2===0){[468,473].forEach(i=>{cx.fillStyle='#4facfe';cx.beginPath();cx.arc(lm[i].x*ce.width,lm[i].y*ce.height,4,0,2*Math.PI);cx.fill()})}
+
+        let rawX,rawY;
+        if(mode==='iris'&&lm.length>473){rawX=(lm[468].x+lm[473].x)/2;rawY=(lm[468].y+lm[473].y)/2}
+        else{rawX=lm[1].x;rawY=lm[1].y}
+
+        let tX=0.5+((1-rawX)-0.5)*SN,tY=0.5+(rawY-0.5)*SN;
+        tX=Math.max(0,Math.min(1,tX));tY=Math.max(0,Math.min(1,tY));
+        const dx=tX-sX,dy=tY-sY,dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist>DZ){sX+=SM*dx;sY+=SM*dy}
+
+        const vel=Math.sqrt((sX-prevX)**2+(sY-prevY)**2);
+        prevX=sX;prevY=sY;
+
+        // Update heatmap & keyboard every frame (they are already throttled internally)
+        updateHeatmap(sX,sY);
+        checkKBHover(sX,sY);
+
+        // EAR + Blink — always compute (fast math)
+        const lEAR=ear(lm,159,145,33,133),rEAR=ear(lm,386,374,362,263);
+        if(lEAR<BT&&rEAR<BT){bf++;if(bf===3){tb++;D.bc.textContent=tb;D.blk.textContent='👁️ BLINK!';D.blk.className='bi ac'}}
+        else{if(bf>0){D.blk.textContent='EYES OPEN';D.blk.className='bi'};bf=0}
+
+        // DOM text updates — only every 3rd frame to reduce layout thrashing
+        if(domFrame%3===0){
+          D.fps.textContent=cfps;
+          D.raw.textContent=rawX.toFixed(3)+' / '+rawY.toFixed(3);
+          D.gaze.textContent=sX.toFixed(3)+' / '+sY.toFixed(3);
+          D.lE.textContent=lEAR.toFixed(3);D.rE.textContent=rEAR.toFixed(3);
+          D.lE.className='sv '+(lEAR<BT?'b':'g');D.rE.className='sv '+(rEAR<BT?'b':'g');
+          D.vel.textContent=(vel*1000).toFixed(1)+' u/s';
+          const tdx=lm[234].x-lm[454].x,tdy=lm[234].y-lm[454].y;
+          D.tilt.textContent=(Math.atan2(tdy,tdx)*180/Math.PI).toFixed(1)+'°';
+          D.sb.textContent='⚡ '+mode.toUpperCase()+' @ '+cfps+' FPS | Vel: '+(vel*1000).toFixed(0);
+          D.sb.className='sb sba';
+        }
+
+        // Calibration
+        if(calActive&&calIdx<calPoints.length){
+          const cp=calPoints[calIdx],cd=Math.sqrt((sX-cp[0])**2+(sY-cp[1])**2);
+          if(cd<0.12){calDwell++;if(calDwell>25){calOffsets.push(cd);calIdx++;document.getElementById('calTarget').className='cal-target done';setTimeout(showCalTarget,400)}}
+          else{calDwell=Math.max(0,calDwell-1)}
+        }
+      }
+    }
+
+    const fm=new FaceMesh({locateFile:f=>'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/'+f});
+    fm.setOptions({maxNumFaces:1,refineLandmarks:true,minDetectionConfidence:0.4,minTrackingConfidence:0.4});
+    fm.onResults(onR);
+    // Lower camera resolution = faster ML inference
+    const cam=new Camera(ve,{onFrame:async()=>{await fm.send({image:ve})},width:320,height:240,facingMode:"user"});
+    cam.start();
+  </script>
+</body>
+</html>

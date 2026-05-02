@@ -1,0 +1,18 @@
+{
+  "weights": [
+    {"name": "conv2d_1_kernel", "shape": [3, 3, 1, 32], "dtype": "float32", "offset": 0, "size": 864},
+    {"name": "conv2d_1_bias", "shape": [32], "dtype": "float32", "offset": 864, "size": 128},
+    {"name": "conv2d_2_kernel", "shape": [3, 3, 32, 32], "dtype": "float32", "offset": 992, "size": 36864},
+    {"name": "conv2d_2_bias", "shape": [32], "dtype": "float32", "offset": 37856, "size": 128},
+    {"name": "conv2d_3_kernel", "shape": [3, 3, 32, 64], "dtype": "float32", "offset": 37984, "size": 73728},
+    {"name": "conv2d_3_bias", "shape": [64], "dtype": "float32", "offset": 111712, "size": 256},
+    {"name": "conv2d_4_kernel", "shape": [3, 3, 64, 64], "dtype": "float32", "offset": 111968, "size": 147456},
+    {"name": "conv2d_4_bias", "shape": [64], "dtype": "float32", "offset": 259424, "size": 256},
+    {"name": "conv2d_5_kernel", "shape": [3, 3, 64, 128], "dtype": "float32", "offset": 259680, "size": 294912},
+    {"name": "conv2d_5_bias", "shape": [128], "dtype": "float32", "offset": 554592, "size": 512},
+    {"name": "dense_1_kernel", "shape": [2048, 256], "dtype": "float32", "offset": 555104, "size": 2097152},
+    {"name": "dense_1_bias", "shape": [256], "dtype": "float32", "offset": 2652256, "size": 1024},
+    {"name": "dense_2_kernel", "shape": [256, 25], "dtype": "float32", "offset": 2653280, "size": 25600},
+    {"name": "dense_2_bias", "shape": [25], "dtype": "float32", "offset": 2678880, "size": 100}
+  ]
+}

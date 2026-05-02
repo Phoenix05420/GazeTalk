@@ -1,0 +1,35 @@
+{
+  // ─── Exclude Flutter/Dart artefacts from VS Code entirely ───────────────────
+  "files.exclude": {
+    "**/flutter/**": true,
+    "**/mobile_flutter/**": true,
+    "**/flutter_windows.zip": true,
+    "**/.dart_tool/**": true,
+    "**/build/**": true
+  },
+  "search.exclude": {
+    "**/flutter/**": true,
+    "**/mobile_flutter/**": true,
+    "**/node_modules/**": true,
+    "**/android/**": true,
+    "**/ios/**": true
+  },
+  "files.watcherExclude": {
+    "**/flutter/**": true,
+    "**/mobile_flutter/**": true,
+    "**/node_modules/**": true,
+    "**/android/**": true,
+    "**/ios/**": true
+  },
+
+  // ─── TypeScript — only lint the RN/Expo source files ────────────────────────
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+
+  // ─── Dart — disable Dart/Flutter analysis entirely ──────────────────────────
+  "dart.enableSdkFormatter": false,
+  "dart.analyzeAngularTemplates": false,
+  "[dart]": {
+    "editor.formatOnSave": false
+  }
+}

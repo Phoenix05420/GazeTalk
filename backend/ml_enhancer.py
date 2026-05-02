@@ -119,9 +119,9 @@ def enhance_sentence_ml(keywords: list[str]) -> str:
     if _tokenizer is None or _model is None:
         raise RuntimeError("ML model not available")
 
-    # Use a direct grammar correction prompt that works well with flan-t5
+    # Use a keyword expansion prompt optimized for AAC communication
     text = ' '.join(keywords)
-    prompt = f"Fix grammar: {text}.\nCorrected:"
+    prompt = f"Expand these keywords into a natural, complete sentence: {text}\nSentence:"
 
     try:
         future = _executor.submit(_generate, prompt)

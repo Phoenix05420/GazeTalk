@@ -2,7 +2,7 @@
  * GazeKeyboard — Premium on-screen keyboard with 3D glass bead keys,
  * dynamic theme support, and refined control buttons.
  */
-import React, { useRef, useCallback, useEffect } from 'react';
+import React, { useRef, useCallback, useEffect, memo } from 'react';
 import { StyleSheet, Text, View, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -19,11 +19,12 @@ const getControls = (theme: ThemeColors) => [
   { key: 'SPACE', label: 'SPACE', icon: null, colors: [theme.bgKeyTop, theme.bgKeyBottom] as [string, string] },
   { key: 'DEL', label: null, icon: 'backspace-outline', colors: ['rgba(255,59,48,0.4)', 'rgba(255,59,48,0.15)'] as [string, string] },
   { key: 'CLEAR', label: null, icon: 'trash-outline', colors: ['rgba(255,149,0,0.4)', 'rgba(255,149,0,0.15)'] as [string, string] },
+  { key: 'UNDO', label: null, icon: 'arrow-undo-outline', colors: [theme.secondaryDim, 'rgba(0,0,0,0.2)'] as [string, string] },
   { key: 'SPEAK', label: null, icon: 'volume-high-outline', colors: [theme.accentDim, 'rgba(0,0,0,0.2)'] as [string, string] },
   { key: 'SEND', label: null, icon: 'sparkles', colors: [theme.success, 'rgba(0,0,0,0.2)'] as [string, string] },
 ];
 
-function KeyButton({ keyId, label, isHovered, theme, onLayout }: {
+const KeyButton = memo(function KeyButton({ keyId, label, isHovered, theme, onLayout }: {
   keyId: string;
   label: string;
   isHovered: boolean;
@@ -88,7 +89,7 @@ function KeyButton({ keyId, label, isHovered, theme, onLayout }: {
       </LinearGradient>
     </Animated.View>
   );
-}
+}, (prev, next) => prev.isHovered === next.isHovered && prev.theme === next.theme);
 
 export default function GazeKeyboard({ hoveredKey, showNumbers, theme, onKeyLayout }: Props) {
   const CONTROLS = getControls(theme);
@@ -158,7 +159,7 @@ export default function GazeKeyboard({ hoveredKey, showNumbers, theme, onKeyLayo
                       styles.controlLabel,
                       { color: isSend || isHov ? theme.textInverse : theme.textMuted }
                     ]}>
-                      {key === 'DEL' ? 'Delete' : key === 'CLEAR' ? 'Clear' : key === 'SPEAK' ? 'Speak' : 'AI Send'}
+                      {key === 'DEL' ? 'Delete' : key === 'CLEAR' ? 'Clear' : key === 'SPEAK' ? 'Speak' : key === 'UNDO' ? 'Undo' : 'AI Send'}
                     </Text>
                   </View>
                 ) : (

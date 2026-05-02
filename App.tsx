@@ -22,7 +22,8 @@ import DynamicBackground from './src/components/DynamicBackground';
 
 // Hooks & Utils
 import { useGazeTracking } from './src/hooks/useGazeTracking';
-import { enhanceSentence, getSuggestions, checkHealth } from './src/utils/api';
+import { enhanceSentence, checkHealth } from './src/utils/api';
+import { suggestNextWord } from './src/utils/suggestions';
 import { DEFAULT_SETTINGS, AppSettings, THEMES, RADII, SPACING } from './src/config';
 import { useCameraPermissions } from 'expo-camera';
 
@@ -37,6 +38,7 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [undoStack, setUndoStack] = useState<string[]>([]);
   const faceTrackingStarted = useRef(false);
 
   const gearRotation = useRef(new Animated.Value(0)).current;
@@ -61,7 +63,7 @@ export default function App() {
 
   useEffect(() => {
     if (outputText.length > 0) {
-      getSuggestions(outputText).then(setSuggestions);
+      setSuggestions(suggestNextWord(outputText));
     } else {
       setSuggestions([]);
     }
@@ -100,7 +102,19 @@ export default function App() {
     switch (key) {
       case 'SPACE': setOutputText((prev) => prev + ' '); break;
       case 'DEL': setOutputText((prev) => prev.slice(0, -1)); break;
-      case 'CLEAR': setOutputText(''); setSuggestions([]); break;
+      case 'CLEAR':
+        // Save to undo stack before clearing
+        setUndoStack((prev) => [outputText, ...prev.slice(0, 9)]);
+        setOutputText(''); setSuggestions([]);
+        break;
+      case 'UNDO':
+        setUndoStack((prev) => {
+          if (prev.length === 0) return prev;
+          const [restored, ...rest] = prev;
+          setOutputText(restored);
+          return rest;
+        });
+        break;
       case 'SPEAK': if (outputText.length > 0) Speech.speak(outputText, { language: 'en', rate: 0.9 }); break;
       case 'SEND': confirmSentence(); break;
       default: setOutputText((prev) => prev + key); break;
@@ -110,13 +124,17 @@ export default function App() {
   const confirmSentence = async () => {
     if (outputText.length === 0) return;
     setIsLoading(true);
+    const words = outputText.trim().split(/\s+/);
     try {
-      const words = outputText.trim().split(/\s+/);
       const sentence = await enhanceSentence(words);
       setOutputText(sentence);
       if (settings.autoSpeak) Speech.speak(sentence, { language: 'en', rate: 0.9 });
     } catch {
-      setOutputText('Connection error — try again');
+      // Graceful degradation: apply client-side fallback instead of showing an error
+      const fallback = words.join(' ');
+      const enhanced = fallback.charAt(0).toUpperCase() + fallback.slice(1) + '.';
+      setOutputText(enhanced);
+      if (settings.autoSpeak) Speech.speak(enhanced, { language: 'en', rate: 0.9 });
     } finally {
       setIsLoading(false);
     }

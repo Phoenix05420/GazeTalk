@@ -32,16 +32,4 @@ export async function enhanceSentence(keywords: string[]): Promise<string> {
   throw new Error('No sentence returned');
 }
 
-/** Get word suggestions for partial input */
-export async function getSuggestions(partial: string, limit = 5): Promise<string[]> {
-  try {
-    const res = await fetch(
-      `${BACKEND_URL}/suggest?partial=${encodeURIComponent(partial)}&limit=${limit}`,
-    );
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.suggestions || [];
-  } catch {
-    return [];
-  }
-}
+

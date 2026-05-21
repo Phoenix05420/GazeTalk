@@ -14,7 +14,7 @@ export function useGazeTracking(dwellTime: number) {
   const [hoveredKey, setHoveredKeyState] = useState<string | null>(null);
   const hoveredKeyRef = useRef<string | null>(null);
   const keyLayouts = useRef<{ [key: string]: { x: number; y: number; w: number; h: number } }>({});
-  const dwellTimer = useRef<NodeJS.Timeout | null>(null);
+  const dwellTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastBlinkTime = useRef<number>(0);
 
   const setHoveredKey = useCallback((key: string | null) => {

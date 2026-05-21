@@ -270,13 +270,13 @@ export default function App() {
 
       <SettingsPanel visible={showSettings} settings={settings} theme={currentTheme} onClose={() => setShowSettings(false)} onUpdate={setSettings} />
 
-      <StatusBar style="light" translucent />
+      <StatusBar style="light" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.1)', justifyContent: 'space-between', padding: SPACING.lg, paddingTop: 55, ...StyleSheet.absoluteFillObject },
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.1)', justifyContent: 'space-between', padding: SPACING.lg, paddingTop: 55, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   settingsFab: { position: 'absolute', top: 10, right: 10, width: 40, height: 40, borderRadius: RADII.full, backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, justifyContent: 'center', alignItems: 'center' },
 });

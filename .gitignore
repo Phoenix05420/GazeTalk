@@ -59,3 +59,10 @@ mobile_flutter/
 flutter_windows.zip
 *.dart
 .dart_tool/
+
+# ─── AI Agents & Generated Artifacts ──────────────────
+.agents/
+.antigravitycli/
+graphify-out/
+raw/
+skills-lock.json

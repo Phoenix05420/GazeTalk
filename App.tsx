@@ -24,7 +24,7 @@ import DynamicBackground from './src/components/DynamicBackground';
 import { useGazeTracking } from './src/hooks/useGazeTracking';
 import { enhanceSentence, checkHealth } from './src/utils/api';
 import { suggestNextWord } from './src/utils/suggestions';
-import { DEFAULT_SETTINGS, AppSettings, THEMES, RADII, SPACING } from './src/config';
+import { DEFAULT_SETTINGS, AppSettings, THEMES, RADII, SPACING, LANGUAGES, LanguageId, TTS_PITCH, TTS_RATE } from './src/config';
 import { useCameraPermissions } from 'expo-camera';
 
 export default function App() {
@@ -47,7 +47,41 @@ export default function App() {
 
   const currentTheme = THEMES[settings.theme] || THEMES.deep_space;
 
-  const { pan, blinkAnim, dwellProgress, hoveredKey, registerKeyLayout, handleGazeData } =
+  // ─── High-quality TTS with voice discovery ───────────
+  const preferredVoice = useRef<Record<LanguageId, string | undefined>>({
+    english: undefined, tamil: undefined, malayalam: undefined, kannada: undefined,
+  });
+
+  // Discover best available voices on startup
+  useEffect(() => {
+    (async () => {
+      try {
+        const voices = await Speech.getAvailableVoicesAsync();
+        for (const lang of ['tamil', 'malayalam', 'kannada', 'english'] as LanguageId[]) {
+          const locale = LANGUAGES[lang].ttsLocale;
+          // Prefer Enhanced quality voice for this locale; fall back to any match
+          const match = voices.find(v => v.language === locale && v.quality === 'Enhanced')
+                    ?? voices.find(v => v.language === locale)
+                    ?? voices.find(v => v.identifier.toLowerCase().includes(lang));
+          if (match) preferredVoice.current[lang] = match.identifier;
+        }
+      } catch { /* voice discovery non-critical */ }
+    })();
+  }, []);
+
+  const speakText = useCallback((text: string, lang: LanguageId) => {
+    if (!text) return;
+    // NFC normalisation ensures Tamil vowel signs are composed for better TTS
+    const normalized = text.normalize('NFC');
+    Speech.speak(normalized, {
+      language: LANGUAGES[lang].ttsLocale,
+      voice: preferredVoice.current[lang],
+      rate: TTS_RATE[lang],
+      pitch: TTS_PITCH[lang],
+    });
+  }, []);
+
+  const { pan, blinkAnim, dwellProgress, hoveredKey, registerKeyLayout, clearKeyLayouts, handleGazeData } =
     useGazeTracking(settings.dwellTime);
 
   useEffect(() => {
@@ -61,6 +95,14 @@ export default function App() {
       requestPermission();
     }
   }, [permission, requestPermission]);
+
+  // Clear stale key layouts + force remount on language switch.
+  // Without clearKeyLayouts(), old English keys remain in the ref
+  // and match before the new Indian-language keys at the same coordinates.
+  // Without key={...} the control buttons wouldn't re-register.
+  useEffect(() => {
+    clearKeyLayouts();
+  }, [settings.keyboardLanguage]);
 
   // Auditory/Haptic feedback on key hover
   useEffect(() => {
@@ -98,8 +140,12 @@ export default function App() {
       const idx = parseInt(key.replace('SUG_', ''), 10);
       if (suggestions[idx]) {
         setOutputText((prev) => {
+          const word = suggestions[idx].toUpperCase();
+          if (prev.endsWith(' ')) {
+            return prev + word + ' ';
+          }
           const words = prev.trimEnd().split(' ');
-          words[words.length - 1] = suggestions[idx].toUpperCase();
+          words[words.length - 1] = word;
           return words.join(' ') + ' ';
         });
         setSuggestions([]);
@@ -107,11 +153,27 @@ export default function App() {
       return;
     }
 
+    if (key.startsWith('SHORTCUT_')) {
+      const idx = parseInt(key.replace('SHORTCUT_', ''), 10);
+      const sc = settings.shortcuts[idx];
+      if (sc) {
+        setOutputText((prev) => {
+          const needsSpace = prev.length > 0 && !prev.endsWith(' ');
+          return needsSpace ? prev + ' ' + sc.text + ' ' : prev + sc.text + ' ';
+        });
+      }
+      return;
+    }
+
     switch (key) {
       case 'SPACE': setOutputText((prev) => prev + ' '); break;
-      case 'DEL': setOutputText((prev) => prev.slice(0, -1)); break;
+      case 'DEL': setOutputText((prev) => {
+        if (prev.endsWith(' ')) {
+          return prev.trimEnd().split(' ').slice(0, -1).join(' ') + ' ';
+        }
+        return prev.slice(0, -1);
+      }); break;
       case 'CLEAR':
-        // Save to undo stack before clearing
         setUndoStack((prev) => [outputText, ...prev.slice(0, 9)]);
         setOutputText(''); setSuggestions([]);
         break;
@@ -123,11 +185,13 @@ export default function App() {
           return rest;
         });
         break;
-      case 'SPEAK': if (outputText.length > 0) Speech.speak(outputText, { language: 'en', rate: 0.9 }); break;
+      case 'SPEAK': if (outputText.length > 0) {
+        speakText(outputText, settings.outputLanguage);
+      } break;
       case 'SEND': confirmSentence(); break;
       default: setOutputText((prev) => prev + key); break;
     }
-  }, [outputText, suggestions, settings.hapticFeedback]);
+  }, [outputText, suggestions, settings.hapticFeedback, settings.shortcuts, settings.outputLanguage]);
 
   const confirmSentence = async () => {
     if (outputText.length === 0) return;
@@ -136,13 +200,16 @@ export default function App() {
     try {
       const sentence = await enhanceSentence(words);
       setOutputText(sentence);
-      if (settings.autoSpeak) Speech.speak(sentence, { language: 'en', rate: 0.9 });
+      if (settings.autoSpeak) {
+        speakText(sentence, settings.outputLanguage);
+      }
     } catch {
-      // Graceful degradation: apply client-side fallback instead of showing an error
       const fallback = words.join(' ');
       const enhanced = fallback.charAt(0).toUpperCase() + fallback.slice(1) + '.';
       setOutputText(enhanced);
-      if (settings.autoSpeak) Speech.speak(enhanced, { language: 'en', rate: 0.9 });
+      if (settings.autoSpeak) {
+        speakText(enhanced, settings.outputLanguage);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -194,8 +261,8 @@ export default function App() {
         </View>
 
         <View>
-          <SuggestionBar suggestions={suggestions} hoveredKey={hoveredKey} theme={currentTheme} onKeyLayout={registerKeyLayout} />
-          <GazeKeyboard hoveredKey={hoveredKey} showNumbers={settings.showNumbers} theme={currentTheme} onKeyLayout={registerKeyLayout} />
+          <SuggestionBar suggestions={suggestions} hoveredKey={hoveredKey} dwellProgress={dwellProgress} theme={currentTheme} onKeyLayout={registerKeyLayout} />
+          <GazeKeyboard key={settings.keyboardLanguage} hoveredKey={hoveredKey} showNumbers={settings.showNumbers} showShortcuts={settings.showShortcuts} shortcuts={settings.shortcuts} dwellProgress={dwellProgress} theme={currentTheme} onKeyLayout={registerKeyLayout} language={settings.keyboardLanguage} />
         </View>
       </View>
 

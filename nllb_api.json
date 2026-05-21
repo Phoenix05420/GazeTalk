@@ -1,472 +1,249 @@
 {
-  "named_endpoints": {
-    "/translate": {
-      "parameters": [
-        {
-          "label": "Input Text",
-          "parameter_name": "text",
-          "parameter_has_default": false,
-          "parameter_default": null,
-          "type": {
-            "type": "string"
-          },
-          "python_type": {
-            "type": "str",
-            "description": ""
-          },
-          "component": "Textbox",
-          "example_input": "Hello!!"
-        },
-        {
-          "label": "Source Language",
-          "parameter_name": "src_lang",
-          "parameter_has_default": false,
-          "parameter_default": null,
-          "type": {
-            "type": "string",
-            "enum": [
-              "Acehnese (Arabic script)",
-              "Acehnese (Latin script)",
-              "Afrikaans",
-              "Akan",
-              "Amharic",
-              "Armenian",
-              "Assamese",
-              "Asturian",
-              "Awadhi",
-              "Ayacucho Quechua",
-              "Balinese",
-              "Bambara",
-              "Banjar (Arabic script)",
-              "Banjar (Latin script)",
-              "Bashkir",
-              "Basque",
-              "Belarusian",
-              "Bemba",
-              "Bengali",
-              "Bhojpuri",
-              "Bosnian",
-              "Buginese",
-              "Bulgarian",
-              "Burmese",
-              "Catalan",
-              "Cebuano",
-              "Central Atlas Tamazight",
-              "Central Aymara",
-              "Central Kanuri (Arabic script)",
-              "Central Kanuri (Latin script)",
-              "Central Kurdish",
-              "Chhattisgarhi",
-              "Chinese (Simplified)",
-              "Chinese (Traditional)",
-              "Chokwe",
-              "Crimean Tatar",
-              "Croatian",
-              "Czech",
-              "Danish",
-              "Dari",
-              "Dutch",
-              "Dyula",
-              "Dzongkha",
-              "Eastern Panjabi",
-              "Eastern Yiddish",
-              "Egyptian Arabic",
-              "English",
-              "Esperanto",
-              "Estonian",
-              "Ewe",
-              "Faroese",
-              "Fijian",
-              "Finnish",
-              "Fon",
-              "French",
-              "Friulian",
-              "Galician",
-              "Ganda",
-              "Georgian",
-              "German",
-              "Greek",
-              "Guarani",
-              "Gujarati",
-              "Haitian Creole",
-              "Halh Mongolian",
-              "Hausa",
-              "Hebrew",
-              "Hindi",
-              "Hungarian",
-              "Icelandic",
-              "Igbo",
-              "Ilocano",
-              "Indonesian",
-              "Irish",
-              "Italian",
-              "Japanese",
-              "Javanese",
-              "Jingpho",
-              "Kabiy\u00e8",
-              "Kabuverdianu",
-              "Kabyle",
-              "Kamba",
-              "Kannada",
-              "Kashmiri (Arabic script)",
-              "Kashmiri (Devanagari script)",
-              "Kazakh",
-              "Khmer",
-              "Kikongo",
-              "Kikuyu",
-              "Kimbundu",
-              "Kinyarwanda",
-              "Korean",
-              "Kyrgyz",
-              "Lao",
-              "Latgalian",
-              "Ligurian",
-              "Limburgish",
-              "Lingala",
-              "Lithuanian",
-              "Lombard",
-              "Luba-Kasai",
-              "Luo",
-              "Luxembourgish",
-              "Macedonian",
-              "Magahi",
-              "Maithili",
-              "Malayalam",
-              "Maltese",
-              "Maori",
-              "Marathi",
-              "Meitei (Bengali script)",
-              "Mesopotamian Arabic",
-              "Minangkabau (Latin script)",
-              "Mizo",
-              "Modern Standard Arabic",
-              "Moroccan Arabic",
-              "Mossi",
-              "Najdi Arabic",
-              "Nepali",
-              "Nigerian Fulfulde",
-              "North Azerbaijani",
-              "North Levantine Arabic",
-              "Northern Kurdish",
-              "Northern Sotho",
-              "Northern Uzbek",
-              "Norwegian Bokm\u00e5l",
-              "Norwegian Nynorsk",
-              "Nuer",
-              "Nyanja",
-              "Occitan",
-              "Odia",
-              "Pangasinan",
-              "Papiamento",
-              "Plateau Malagasy",
-              "Polish",
-              "Portuguese",
-              "Romanian",
-              "Rundi",
-              "Russian",
-              "Samoan",
-              "Sango",
-              "Sanskrit",
-              "Santali",
-              "Sardinian",
-              "Scottish Gaelic",
-              "Serbian",
-              "Shan",
-              "Shona",
-              "Sicilian",
-              "Silesian",
-              "Sindhi",
-              "Sinhala",
-              "Slovak",
-              "Slovenian",
-              "Somali",
-              "South Azerbaijani",
-              "South Levantine Arabic",
-              "Southern Pashto",
-              "Southern Sotho",
-              "Southwestern Dinka",
-              "Spanish",
-              "Standard Latvian",
-              "Standard Malay",
-              "Standard Tibetan",
-              "Sundanese",
-              "Swahili",
-              "Swati",
-              "Swedish",
-              "Tagalog",
-              "Tajik",
-              "Tamasheq (Latin script)",
-              "Tamasheq (Tifinagh script)",
-              "Tamil",
-              "Tatar",
-              "Ta\u2019izzi-Adeni Arabic",
-              "Telugu",
-              "Thai",
-              "Tigrinya",
-              "Tok Pisin",
-              "Tosk Albanian",
-              "Tsonga",
-              "Tswana",
-              "Tumbuka",
-              "Tunisian Arabic",
-              "Turkish",
-              "Turkmen",
-              "Twi",
-              "Ukrainian",
-              "Umbundu",
-              "Urdu",
-              "Uyghur",
-              "Venetian",
-              "Vietnamese",
-              "Waray",
-              "Welsh",
-              "West Central Oromo",
-              "Western Persian",
-              "Wolof",
-              "Xhosa",
-              "Yoruba",
-              "Yue Chinese",
-              "Zulu"
-            ]
-          },
-          "python_type": {
-            "type": "Literal['Acehnese (Arabic script)', 'Acehnese (Latin script)', 'Afrikaans', 'Akan', 'Amharic', 'Armenian', 'Assamese', 'Asturian', 'Awadhi', 'Ayacucho Quechua', 'Balinese', 'Bambara', 'Banjar (Arabic script)', 'Banjar (Latin script)', 'Bashkir', 'Basque', 'Belarusian', 'Bemba', 'Bengali', 'Bhojpuri', 'Bosnian', 'Buginese', 'Bulgarian', 'Burmese', 'Catalan', 'Cebuano', 'Central Atlas Tamazight', 'Central Aymara', 'Central Kanuri (Arabic script)', 'Central Kanuri (Latin script)', 'Central Kurdish', 'Chhattisgarhi', 'Chinese (Simplified)', 'Chinese (Traditional)', 'Chokwe', 'Crimean Tatar', 'Croatian', 'Czech', 'Danish', 'Dari', 'Dutch', 'Dyula', 'Dzongkha', 'Eastern Panjabi', 'Eastern Yiddish', 'Egyptian Arabic', 'English', 'Esperanto', 'Estonian', 'Ewe', 'Faroese', 'Fijian', 'Finnish', 'Fon', 'French', 'Friulian', 'Galician', 'Ganda', 'Georgian', 'German', 'Greek', 'Guarani', 'Gujarati', 'Haitian Creole', 'Halh Mongolian', 'Hausa', 'Hebrew', 'Hindi', 'Hungarian', 'Icelandic', 'Igbo', 'Ilocano', 'Indonesian', 'Irish', 'Italian', 'Japanese', 'Javanese', 'Jingpho', 'Kabiy\u00e8', 'Kabuverdianu', 'Kabyle', 'Kamba', 'Kannada', 'Kashmiri (Arabic script)', 'Kashmiri (Devanagari script)', 'Kazakh', 'Khmer', 'Kikongo', 'Kikuyu', 'Kimbundu', 'Kinyarwanda', 'Korean', 'Kyrgyz', 'Lao', 'Latgalian', 'Ligurian', 'Limburgish', 'Lingala', 'Lithuanian', 'Lombard', 'Luba-Kasai', 'Luo', 'Luxembourgish', 'Macedonian', 'Magahi', 'Maithili', 'Malayalam', 'Maltese', 'Maori', 'Marathi', 'Meitei (Bengali script)', 'Mesopotamian Arabic', 'Minangkabau (Latin script)', 'Mizo', 'Modern Standard Arabic', 'Moroccan Arabic', 'Mossi', 'Najdi Arabic', 'Nepali', 'Nigerian Fulfulde', 'North Azerbaijani', 'North Levantine Arabic', 'Northern Kurdish', 'Northern Sotho', 'Northern Uzbek', 'Norwegian Bokm\u00e5l', 'Norwegian Nynorsk', 'Nuer', 'Nyanja', 'Occitan', 'Odia', 'Pangasinan', 'Papiamento', 'Plateau Malagasy', 'Polish', 'Portuguese', 'Romanian', 'Rundi', 'Russian', 'Samoan', 'Sango', 'Sanskrit', 'Santali', 'Sardinian', 'Scottish Gaelic', 'Serbian', 'Shan', 'Shona', 'Sicilian', 'Silesian', 'Sindhi', 'Sinhala', 'Slovak', 'Slovenian', 'Somali', 'South Azerbaijani', 'South Levantine Arabic', 'Southern Pashto', 'Southern Sotho', 'Southwestern Dinka', 'Spanish', 'Standard Latvian', 'Standard Malay', 'Standard Tibetan', 'Sundanese', 'Swahili', 'Swati', 'Swedish', 'Tagalog', 'Tajik', 'Tamasheq (Latin script)', 'Tamasheq (Tifinagh script)', 'Tamil', 'Tatar', 'Ta\u2019izzi-Adeni Arabic', 'Telugu', 'Thai', 'Tigrinya', 'Tok Pisin', 'Tosk Albanian', 'Tsonga', 'Tswana', 'Tumbuka', 'Tunisian Arabic', 'Turkish', 'Turkmen', 'Twi', 'Ukrainian', 'Umbundu', 'Urdu', 'Uyghur', 'Venetian', 'Vietnamese', 'Waray', 'Welsh', 'West Central Oromo', 'Western Persian', 'Wolof', 'Xhosa', 'Yoruba', 'Yue Chinese', 'Zulu']",
-            "description": ""
-          },
-          "component": "Dropdown",
-          "example_input": "Acehnese (Arabic script)"
-        },
-        {
-          "label": "Target Language",
-          "parameter_name": "tgt_lang",
-          "parameter_has_default": false,
-          "parameter_default": null,
-          "type": {
-            "type": "string",
-            "enum": [
-              "Acehnese (Arabic script)",
-              "Acehnese (Latin script)",
-              "Afrikaans",
-              "Akan",
-              "Amharic",
-              "Armenian",
-              "Assamese",
-              "Asturian",
-              "Awadhi",
-              "Ayacucho Quechua",
-              "Balinese",
-              "Bambara",
-              "Banjar (Arabic script)",
-              "Banjar (Latin script)",
-              "Bashkir",
-              "Basque",
-              "Belarusian",
-              "Bemba",
-              "Bengali",
-              "Bhojpuri",
-              "Bosnian",
-              "Buginese",
-              "Bulgarian",
-              "Burmese",
-              "Catalan",
-              "Cebuano",
-              "Central Atlas Tamazight",
-              "Central Aymara",
-              "Central Kanuri (Arabic script)",
-              "Central Kanuri (Latin script)",
-              "Central Kurdish",
-              "Chhattisgarhi",
-              "Chinese (Simplified)",
-              "Chinese (Traditional)",
-              "Chokwe",
-              "Crimean Tatar",
-              "Croatian",
-              "Czech",
-              "Danish",
-              "Dari",
-              "Dutch",
-              "Dyula",
-              "Dzongkha",
-              "Eastern Panjabi",
-              "Eastern Yiddish",
-              "Egyptian Arabic",
-              "English",
-              "Esperanto",
-              "Estonian",
-              "Ewe",
-              "Faroese",
-              "Fijian",
-              "Finnish",
-              "Fon",
-              "French",
-              "Friulian",
-              "Galician",
-              "Ganda",
-              "Georgian",
-              "German",
-              "Greek",
-              "Guarani",
-              "Gujarati",
-              "Haitian Creole",
-              "Halh Mongolian",
-              "Hausa",
-              "Hebrew",
-              "Hindi",
-              "Hungarian",
-              "Icelandic",
-              "Igbo",
-              "Ilocano",
-              "Indonesian",
-              "Irish",
-              "Italian",
-              "Japanese",
-              "Javanese",
-              "Jingpho",
-              "Kabiy\u00e8",
-              "Kabuverdianu",
-              "Kabyle",
-              "Kamba",
-              "Kannada",
-              "Kashmiri (Arabic script)",
-              "Kashmiri (Devanagari script)",
-              "Kazakh",
-              "Khmer",
-              "Kikongo",
-              "Kikuyu",
-              "Kimbundu",
-              "Kinyarwanda",
-              "Korean",
-              "Kyrgyz",
-              "Lao",
-              "Latgalian",
-              "Limburgish",
-              "Lingala",
-              "Lithuanian",
-              "Luba-Kasai",
-              "Luo",
-              "Luxembourgish",
-              "Macedonian",
-              "Magahi",
-              "Maithili",
-              "Malayalam",
-              "Maltese",
-              "Maori",
-              "Marathi",
-              "Meitei (Bengali script)",
-              "Mesopotamian Arabic",
-              "Minangkabau (Latin script)",
-              "Mizo",
-              "Modern Standard Arabic",
-              "Moroccan Arabic",
-              "Mossi",
-              "Najdi Arabic",
-              "Nepali",
-              "Nigerian Fulfulde",
-              "North Azerbaijani",
-              "North Levantine Arabic",
-              "Northern Kurdish",
-              "Northern Sotho",
-              "Northern Uzbek",
-              "Norwegian Bokm\u00e5l",
-              "Norwegian Nynorsk",
-              "Nuer",
-              "Nyanja",
-              "Occitan",
-              "Odia",
-              "Pangasinan",
-              "Papiamento",
-              "Plateau Malagasy",
-              "Polish",
-              "Portuguese",
-              "Romanian",
-              "Rundi",
-              "Russian",
-              "Samoan",
-              "Sango",
-              "Sanskrit",
-              "Santali",
-              "Sardinian",
-              "Scottish Gaelic",
-              "Serbian",
-              "Shan",
-              "Shona",
-              "Silesian",
-              "Sindhi",
-              "Sinhala",
-              "Slovak",
-              "Slovenian",
-              "Somali",
-              "South Azerbaijani",
-              "South Levantine Arabic",
-              "Southern Pashto",
-              "Southern Sotho",
-              "Southwestern Dinka",
-              "Spanish",
-              "Standard Latvian",
-              "Standard Malay",
-              "Standard Tibetan",
-              "Sundanese",
-              "Swahili",
-              "Swati",
-              "Swedish",
-              "Tagalog",
-              "Tajik",
-              "Tamasheq (Latin script)",
-              "Tamasheq (Tifinagh script)",
-              "Tamil",
-              "Tatar",
-              "Ta\u2019izzi-Adeni Arabic",
-              "Telugu",
-              "Thai",
-              "Tigrinya",
-              "Tok Pisin",
-              "Tosk Albanian",
-              "Tsonga",
-              "Tswana",
-              "Tumbuka",
-              "Tunisian Arabic",
-              "Turkish",
-              "Turkmen",
-              "Twi",
-              "Ukrainian",
-              "Umbundu",
-              "Urdu",
-              "Uyghur",
-              "Venetian",
-              "Vietnamese",
-              "Waray",
-              "Welsh",
-              "West Central Oromo",
-              "Western Persian",
-              "Wolof",
-              "Xhosa",
-              "Yoruba",
-              "Yue Chinese",
-              "Zulu"
-            ]
-          },
-          "python_type": {
-            "type": "Literal['Acehnese (Arabic script)', 'Acehnese (Latin script)', 'Afrikaans', 'Akan', 'Amharic', 'Armenian', 'Assamese', 'Asturian', 'Awadhi', 'Ayacucho Quechua', 'Balinese', 'Bambara', 'Banjar (Arabic script)', 'Banjar (Latin script)', 'Bashkir', 'Basque', 'Belarusian', 'Bemba', 'Bengali', 'Bhojpuri', 'Bosnian', 'Buginese', 'Bulgarian', 'Burmese', 'Catalan', 'Cebuano', 'Central Atlas Tamazight', 'Central Aymara', 'Central Kanuri (Arabic script)', 'Central Kanuri (Latin script)', 'Central Kurdish', 'Chhattisgarhi', 'Chinese (Simplified)', 'Chinese (Traditional)', 'Chokwe', 'Crimean Tatar', 'Croatian', 'Czech', 'Danish', 'Dari', 'Dutch', 'Dyula', 'Dzongkha', 'Eastern Panjabi', 'Eastern Yiddish', 'Egyptian Arabic', 'English', 'Esperanto', 'Estonian', 'Ewe', 'Faroese', 'Fijian', 'Finnish', 'Fon', 'French', 'Friulian', 'Galician', 'Ganda', 'Georgian', 'German', 'Greek', 'Guarani', 'Gujarati', 'Haitian Creole', 'Halh Mongolian', 'Hausa', 'Hebrew', 'Hindi', 'Hungarian', 'Icelandic', 'Igbo', 'Ilocano', 'Indonesian', 'Irish', 'Italian', 'Japanese', 'Javanese', 'Jingpho', 'Kabiy\u00e8', 'Kabuverdianu', 'Kabyle', 'Kamba', 'Kannada', 'Kashmiri (Arabic script)', 'Kashmiri (Devanagari script)', 'Kazakh', 'Khmer', 'Kikongo', 'Kikuyu', 'Kimbundu', 'Kinyarwanda', 'Korean', 'Kyrgyz', 'Lao', 'Latgalian', 'Limburgish', 'Lingala', 'Lithuanian', 'Luba-Kasai', 'Luo', 'Luxembourgish', 'Macedonian', 'Magahi', 'Maithili', 'Malayalam', 'Maltese', 'Maori', 'Marathi', 'Meitei (Bengali script)', 'Mesopotamian Arabic', 'Minangkabau (Latin script)', 'Mizo', 'Modern Standard Arabic', 'Moroccan Arabic', 'Mossi', 'Najdi Arabic', 'Nepali', 'Nigerian Fulfulde', 'North Azerbaijani', 'North Levantine Arabic', 'Northern Kurdish', 'Northern Sotho', 'Northern Uzbek', 'Norwegian Bokm\u00e5l', 'Norwegian Nynorsk', 'Nuer', 'Nyanja', 'Occitan', 'Odia', 'Pangasinan', 'Papiamento', 'Plateau Malagasy', 'Polish', 'Portuguese', 'Romanian', 'Rundi', 'Russian', 'Samoan', 'Sango', 'Sanskrit', 'Santali', 'Sardinian', 'Scottish Gaelic', 'Serbian', 'Shan', 'Shona', 'Silesian', 'Sindhi', 'Sinhala', 'Slovak', 'Slovenian', 'Somali', 'South Azerbaijani', 'South Levantine Arabic', 'Southern Pashto', 'Southern Sotho', 'Southwestern Dinka', 'Spanish', 'Standard Latvian', 'Standard Malay', 'Standard Tibetan', 'Sundanese', 'Swahili', 'Swati', 'Swedish', 'Tagalog', 'Tajik', 'Tamasheq (Latin script)', 'Tamasheq (Tifinagh script)', 'Tamil', 'Tatar', 'Ta\u2019izzi-Adeni Arabic', 'Telugu', 'Thai', 'Tigrinya', 'Tok Pisin', 'Tosk Albanian', 'Tsonga', 'Tswana', 'Tumbuka', 'Tunisian Arabic', 'Turkish', 'Turkmen', 'Twi', 'Ukrainian', 'Umbundu', 'Urdu', 'Uyghur', 'Venetian', 'Vietnamese', 'Waray', 'Welsh', 'West Central Oromo', 'Western Persian', 'Wolof', 'Xhosa', 'Yoruba', 'Yue Chinese', 'Zulu']",
-            "description": ""
-          },
-          "component": "Dropdown",
-          "example_input": "Acehnese (Arabic script)"
-        }
-      ],
-      "returns": [
-        {
-          "label": "Output Text",
-          "type": {
-            "type": "string"
-          },
-          "python_type": {
-            "type": "str",
-            "description": ""
-          },
-          "component": "Textbox"
-        }
-      ]
-    }
+  "openapi": "3.0.0",
+  "info": {
+    "title": "GazeTalk Backend API",
+    "version": "2.0.0",
+    "description": "FastAPI backend for GazeTalk eye-tracking communication app. Uses HuggingFace Transformers (facebook/nllb-200-distilled-600M) for translation, flan-t5-small for sentence enhancement."
   },
-  "unnamed_endpoints": {}
+  "servers": [
+    { "url": "http://localhost:8000", "description": "Local dev server" }
+  ],
+  "paths": {
+    "/translate": {
+      "post": {
+        "summary": "Translate text between languages using NLLB-200 model",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["text", "src_lang", "tgt_lang"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000,
+                    "description": "Text to translate"
+                  },
+                  "src_lang": {
+                    "type": "string",
+                    "pattern": "^[a-z]{2,5}_[A-Z][a-z]{2,4}$",
+                    "description": "Source NLLB language code (e.g. eng_Latn)",
+                    "examples": ["eng_Latn", "tam_Taml", "mal_Mlym", "kan_Knda"]
+                  },
+                  "tgt_lang": {
+                    "type": "string",
+                    "pattern": "^[a-z]{2,5}_[A-Z][a-z]{2,4}$",
+                    "description": "Target NLLB language code (e.g. tam_Taml)",
+                    "examples": ["eng_Latn", "tam_Taml", "mal_Mlym", "kan_Knda"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Translation successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "translated_text": { "type": "string" },
+                    "ok": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error - invalid language code or text format"
+          }
+        }
+      }
+    },
+    "/enhance": {
+      "post": {
+        "summary": "AI sentence enhancement from typed keywords",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["keywords"],
+                "properties": {
+                  "keywords": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "description": "List of typed keywords to form into a sentence"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Enhancement successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sentence": { "type": "string" },
+                    "ok": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enhance/gaze": {
+      "post": {
+        "summary": "Gaze + gesture fusion endpoint",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["gaze_x", "gaze_y", "gesture", "confidence"],
+                "properties": {
+                  "gaze_x": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "gaze_y": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "gesture": { "type": "string" },
+                  "confidence": { "type": "number", "minimum": 0 },
+                  "timestamp": { "type": "integer", "nullable": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Fusion successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sentence": { "type": "string" },
+                    "ok": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/suggest": {
+      "get": {
+        "summary": "Word completion suggestions",
+        "parameters": [
+          {
+            "name": "partial",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Partial word or full text to get suggestions for"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 1, "maximum": 10, "default": 5 },
+            "description": "Max number of suggestions"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Suggestions retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "suggestions": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "Server is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "version": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/reload_model": {
+      "post": {
+        "summary": "Reload ML model on server",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "model_name": {
+                    "type": "string",
+                    "description": "Specific model name to reload"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Model reloaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean" },
+                    "model": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ws": {
+      "get": {
+        "summary": "Real-time sentence streaming via WebSocket",
+        "description": "Upgrades to WebSocket connection. Send JSON with 'keywords' array, receive enhanced sentences."
+      }
+    }
+  }
 }

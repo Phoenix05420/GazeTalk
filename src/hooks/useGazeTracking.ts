@@ -46,6 +46,10 @@ export function useGazeTracking(dwellTime: number) {
     keyLayouts.current[key] = layout;
   }, []);
 
+  const clearKeyLayouts = useCallback(() => {
+    keyLayouts.current = {};
+  }, []);
+
   const checkIntersection = useCallback((cursorX: number, cursorY: number, onSelect: (key: string) => void) => {
     let foundKey: string | null = null;
     for (const [key, layout] of Object.entries(keyLayouts.current)) {
@@ -95,6 +99,7 @@ export function useGazeTracking(dwellTime: number) {
     dwellProgress,
     hoveredKey,
     registerKeyLayout,
+    clearKeyLayouts,
     handleGazeData,
   };
 }

@@ -5,13 +5,17 @@ and WebSocket streaming for the React Native frontend.
 """
 from fastapi import FastAPI, WebSocket, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
 import uvicorn
 import logging
+import re
 
 from utils import enhance_sentence, enhance_from_keywords
 from suggestions import suggest, suggest_next_word
+from ml_enhancer import load_model
+from ml_translator import translate as nllb_translate
+import asyncio
 
 # ─── App Setup ─────────────────────────────────────────
 app = FastAPI(
@@ -19,6 +23,11 @@ app = FastAPI(
     description="AI-powered communication backend for eye-tracking keyboard",
     version="2.0.0",
 )
+
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Triggering background ML model load...")
+    asyncio.create_task(asyncio.to_thread(load_model))
 
 app.add_middleware(
     CORSMiddleware,
@@ -49,6 +58,25 @@ class EnhanceResponse(BaseModel):
 
 class SuggestResponse(BaseModel):
     suggestions: List[str]
+
+NLLB_CODE_PATTERN = re.compile(r'^[a-z]{2,5}_[A-Z][a-z]{2,4}$')
+SUPPORTED_NLLB_CODES = {'eng_Latn', 'tam_Taml', 'mal_Mlym', 'kan_Knda'}
+
+class TranslateRequest(BaseModel):
+    text: str = Field(..., min_length=1, max_length=1000, description="Text to translate")
+    src_lang: str = Field(..., min_length=1, max_length=20, description="Source NLLB language code (e.g. eng_Latn)")
+    tgt_lang: str = Field(..., min_length=1, max_length=20, description="Target NLLB language code (e.g. tam_Taml)")
+
+    @field_validator('src_lang', 'tgt_lang')
+    @classmethod
+    def validate_nllb_code(cls, v: str) -> str:
+        if not NLLB_CODE_PATTERN.match(v):
+            raise ValueError(f"Invalid NLLB code format: '{v}'. Expected pattern like 'eng_Latn'")
+        return v
+
+class TranslateResponse(BaseModel):
+    translated_text: str
+    ok: bool = True
 
 
 # ─── Endpoints ─────────────────────────────────────────
@@ -104,6 +132,20 @@ async def get_suggestions(
     except Exception as e:
         logger.exception("Suggestion error")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post('/translate', response_model=TranslateResponse)
+async def translate_endpoint(req: TranslateRequest):
+    """Translates text between languages using the NLLB model.
+    Accepts source text and NLLB language codes for source/target.
+    Falls back to returning original text if translation is unavailable.
+    """
+    try:
+        translated = nllb_translate(req.text, req.src_lang, req.tgt_lang)
+        return TranslateResponse(translated_text=translated)
+    except Exception as e:
+        logger.warning("Translation failed, returning original text: %s", e)
+        return TranslateResponse(translated_text=req.text, ok=False)
 
 
 @app.post('/admin/reload_model')
